@@ -90,7 +90,7 @@ def update_incident(incident_number: str, payload: dict) -> bool:
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "Authorization": "Basic YWRtaW46WlhTd2FRbnAvNjQk"  # Base64 encoded admin:ZXBpY29kZXI=
+            "Authorization": "Basic "  # Base64 encoded admin:ZXBpY29kZXI=
         }
         
         # Make the request with basic auth
@@ -146,7 +146,7 @@ def close_incident(incident_number: str) -> bool:
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "Authorization": "Basic YWRtaW46WlhTd2FRbnAvNjQk"  # Base64 encoded admin:ZXBpY29kZXI=
+            "Authorization": "Basic "  # Base64 encoded admin:ZXBpY29kZXI=
         }
         
         # Make the request with basic auth
