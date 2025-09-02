@@ -1,0 +1,363 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "ServiceNow Incident Management API",
+        "description": "API for managing ServiceNow incidents with enhanced RAG capabilities",
+        "version": "1.0.0",
+        "contact": {
+            "name": "API Support",
+            "email": "tanmoy@example.com"
+        }
+    },
+    "servers": [
+      {
+        "url": "https://cts-vibeappuk6402-5.azurewebsites.net",
+        "description": "Generated server url"
+      }
+    ],
+    "tags": [
+      {
+        "name": "ServiceNow API",
+        "description": "Operations related to ServiceNow incidents and commands. This API connects to a ServiceNow instance (https://dev276871.service-now.com) and provides endpoints to interact with ServiceNow.If this API is not working it means that the ServiceNow instance is hibernating. Please call @+919836419583 to wake this instance."
+      },
+      {
+        "name": "Hello API",
+        "description": "Simple hello endpoint for health check and welcome message."
+      }
+    ],
+    "paths": {
+      "/api/servicenow/updateIncidentState": {
+        "put": {
+          "tags": [
+            "ServiceNow API"
+          ],
+          "summary": "close an incident in servuce now via this API",
+          "description": "closes an incident in servuce now via this API in ServiceNow .",
+          "operationId": "updateIncidentState",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateIncidentBody"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Result"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/hello": {
+        "get": {
+          "tags": [
+            "Hello API"
+          ],
+          "summary": "Hello endpoint",
+          "description": "Returns a welcome message. Useful for health checks and verifying the API is running.",
+          "operationId": "hello",
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/servicenow/incidentsByNumbers/{numbers}": {
+        "get": {
+          "tags": [
+            "ServiceNow API"
+          ],
+          "summary": "Get incident list by numbers, comma separated",
+          "description": "Retrieves incident list by numbers, comma separated from ServiceNow .",
+          "operationId": "getIncidentsDetailsByIncidents",
+          "parameters": [
+            {
+              "name": "numbers",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/servicenow/incidentList": {
+        "get": {
+          "tags": [
+            "ServiceNow API"
+          ],
+          "summary": "Get raw incident list",
+          "description": "Retrieves the raw list of ServiceNow incidents as returned by the external ServiceNow API. The response contains the full incident model as originally fetched.",
+          "operationId": "getIncidentsDetails",
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/servicenow/incidentListCleaned": {
+        "get": {
+          "tags": [
+            "ServiceNow API"
+          ],
+          "summary": "Get cleaned incident list",
+          "description": "Fetches a cleaned list of ServiceNow incidents. The response includes a simplified incident model, a summary of incident counts by state, and a resolution book containing incident descriptions and their resolutions.",
+          "operationId": "getAllIncidentViewCleaned",
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CleanResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/servicenow/distinctIncidents": {
+        "get": {
+          "tags": [
+            "ServiceNow API"
+          ],
+          "summary": "Get distinct incident list",
+          "description": "Retrieves distinct incident list from ServiceNow .",
+          "operationId": "getDistinctIncidents",
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "UpdateIncidentBody": {
+          "type": "object",
+          "properties": {
+            "sys_id": {
+              "type": "string"
+            },
+            "close_code": {
+              "type": "string"
+            },
+            "close_notes": {
+              "type": "string"
+            }
+          }
+        },
+        "Result": {
+          "type": "object",
+          "properties": {
+            "short_description": {
+              "type": "string"
+            },
+            "assignment_group": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "work_notes_list": {
+              "type": "string"
+            },
+            "work_notes": {
+              "type": "string"
+            },
+            "close_notes": {
+              "type": "string"
+            },
+            "sys_tags": {
+              "type": "string"
+            },
+            "priority": {
+              "type": "string"
+            },
+            "hold_reason": {
+              "type": "string"
+            },
+            "number": {
+              "type": "string"
+            },
+            "opened_at": {
+              "type": "string"
+            },
+            "sys_id": {
+              "type": "string"
+            },
+            "incident_state": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "sys_created_on": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            }
+          }
+        },
+        "Response": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Result"
+              }
+            },
+            "size": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        "CleanResponse": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/CleanResult"
+              }
+            },
+            "countOfIncidentsByStatus": {
+              "$ref": "#/components/schemas/StateOfIncidentSummary"
+            },
+            "howToResolveBook": {
+              "$ref": "#/components/schemas/ResolutionBook"
+            },
+            "sizeOfTotalIncident": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        "CleanResult": {
+          "type": "object",
+          "properties": {
+            "incidentNumber": {
+              "type": "string"
+            },
+            "incidentAssignedTo": {
+              "type": "string"
+            },
+            "incidentDescription": {
+              "type": "string"
+            },
+            "stateOfTicket": {
+              "type": "string"
+            },
+            "workNotes": {
+              "type": "string"
+            },
+            "severity_priority": {
+              "type": "string"
+            },
+            "howItWasResolved": {
+              "type": "string"
+            },
+            "incidentTag": {
+              "type": "string"
+            }
+          }
+        },
+        "IncidentDescriptionResolution": {
+          "type": "object",
+          "properties": {
+            "incidentDescription": {
+              "type": "string"
+            },
+            "incidentResolution": {
+              "type": "string"
+            }
+          }
+        },
+        "ResolutionBook": {
+          "type": "object",
+          "properties": {
+            "incidentResolutionByincidentDescription": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/IncidentDescriptionResolution"
+              }
+            }
+          }
+        },
+        "StateOfIncidentSummary": {
+          "type": "object",
+          "properties": {
+            "getcount": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/count"
+              }
+            }
+          }
+        },
+        "count": {
+          "type": "object",
+          "properties": {
+            "incidentState": {
+              "type": "string"
+            },
+            "incidentByStateCount": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      }
+    }
+  }
