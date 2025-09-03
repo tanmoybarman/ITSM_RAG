@@ -1,6 +1,26 @@
 {
   "result": [
     {
+      "incidentNumber": "INC0010016",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "\nids needs to be merged. this is creating IPA issue",
+      "stateOfTicket": "On Hold",
+      "workNotes": "2025-09-02 10:59:44 - System Administrator (Work notes)\nstill checking\n\n2025-09-02 02:27:14 - System Administrator (Work notes)\nstill checking\n\n",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010030",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "havind head set issue. please fix this.",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
       "incidentNumber": "INC0010001",
       "incidentAssignedTo": "",
       "incidentDescription": "test ",
@@ -11,10 +31,30 @@
       "incidentTag": "Java"
     },
     {
+      "incidentNumber": "INC0010029",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "I am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
       "incidentNumber": "INC0008001",
       "incidentAssignedTo": "",
       "incidentDescription": "",
-      "stateOfTicket": "New",
+      "stateOfTicket": "Resolved",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "Solution provided",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010012",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "user is asking the IDs to be merged between 2 ids. id1# 875432145, id2# 765143245",
+      "stateOfTicket": "In Progress",
       "workNotes": "",
       "severity_priority": "5 - Planning",
       "howItWasResolved": "",
@@ -38,6 +78,26 @@
       "workNotes": "",
       "severity_priority": "3 - Moderate",
       "howItWasResolved": "This is not an issue with the USB port. Replaced the headset to resolve the issue.",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010027",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "I am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010009",
+      "incidentAssignedTo": "",
+      "incidentDescription": "this desc we are creating to testing purpose",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
       "incidentTag": ""
     },
     {
@@ -114,10 +174,10 @@
       "incidentNumber": "INC0000016",
       "incidentAssignedTo": "Hardware",
       "incidentDescription": "Seeing puddles of water on the floor of the server room. We've put buckets out to collect the water until this is fixed.",
-      "stateOfTicket": "In Progress",
+      "stateOfTicket": "Resolved",
       "workNotes": "",
       "severity_priority": "1 - Critical",
-      "howItWasResolved": "",
+      "howItWasResolved": "Solution provided",
       "incidentTag": ""
     },
     {
@@ -361,6 +421,26 @@
       "incidentTag": ""
     },
     {
+      "incidentNumber": "INC0010034",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "test",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010013",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "user is asking the IDs to be merged between 2 ids. id1# 875432145, id2# 765143245",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
       "incidentNumber": "INC0008112",
       "incidentAssignedTo": "",
       "incidentDescription": "",
@@ -381,10 +461,70 @@
       "incidentTag": "tanmoy"
     },
     {
+      "incidentNumber": "INC0010008",
+      "incidentAssignedTo": "",
+      "incidentDescription": "this desc we are creating to testing purpose",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010018",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "\nids needs to be merged. this is creating IPA issue",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010026",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "I am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
       "incidentNumber": "INC0000057",
       "incidentAssignedTo": "",
       "incidentDescription": "Wifi connection seems slow. Webpages are taking a very long time to load.",
       "stateOfTicket": "New",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010036",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "testing faikures",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010015",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "ids needs to be merged. this is creating IPA issue",
+      "stateOfTicket": "Resolved",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "Solution provided",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010033",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "streamlit.errors.StreamlitAPIException: st.session_state.short_desc cannot be modified after the widget with key short_desc is instantiated.\n\nTraceback:\nFile \"C:\\Users\\tanmoy\\Documents\\wind\\RAG_V2_UI_final_demo_ready\\chat_ui.py\", line 837, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\tanmoy\\Documents\\wind\\RAG_V2_UI_final_demo_ready\\chat_ui.py\", line 828, in main\n    render_create_ticket()\n    ~~~~~~~~~~~~~~~~~~~~^^\nFile \"C:\\Users\\tanmoy\\Documents\\wind\\RAG_V2_UI_final_demo_ready\\chat_ui.py\", line 767, in render_create_ticket\n    st.session_state.short_desc = \"\"\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\tanmoy\\AppData\\Roaming\\Python\\Python313\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\tanmoy\\AppData\\Roaming\\Python\\Python313\\site-packages\\streamlit\\runtime\\state\\session_state_proxy.py\", line 136, in __setattr__\n    self[key] = value\n    ~~~~^^^^^\nFile \"C:\\Users\\tanmoy\\AppData\\Roaming\\Python\\Python313\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\tanmoy\\AppData\\Roaming\\Python\\Python313\\site-packages\\streamlit\\runtime\\state\\session_state_proxy.py\", line 114, in __setitem__\n    get_session_state()[key] = value\n    ~~~~~~~~~~~~~~~~~~~^^^^^\nFile \"C:\\Users\\tanmoy\\AppData\\Roaming\\Python\\Python313\\site-packages\\streamlit\\runtime\\state\\safe_session_state.py\", line 109, in __setitem__\n    self._state[key] = value\n    ~~~~~~~~~~~^^^^^\nFile \"C:\\Users\\tanmoy\\AppData\\Roaming\\Python\\Python313\\site-packages\\streamlit\\runtime\\state\\session_state.py\", line 533, in __setitem__\n    raise StreamlitAPIException(\n    ...<2 lines>...\n    )\n",
+      "stateOfTicket": "In Progress",
       "workNotes": "",
       "severity_priority": "5 - Planning",
       "howItWasResolved": "",
@@ -431,11 +571,41 @@
       "incidentTag": ""
     },
     {
+      "incidentNumber": "INC0010010",
+      "incidentAssignedTo": "",
+      "incidentDescription": "this desc we are creating to testing purpose",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010031",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "calling in a test ticket",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
       "incidentNumber": "INC0000058",
       "incidentAssignedTo": "",
       "incidentDescription": "Taking a really long time to send emails. Last email took almost a minute for sending to complete and there wasn't even an attachment.",
       "stateOfTicket": "In Progress",
       "workNotes": "2025-08-06 08:18:13 - System Administrator (Work notes)\ntesting please\n\n",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010021",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "ids needs to be merged. this is creating IPA issue",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
       "severity_priority": "5 - Planning",
       "howItWasResolved": "",
       "incidentTag": ""
@@ -468,6 +638,16 @@
       "workNotes": "",
       "severity_priority": "1 - Critical",
       "howItWasResolved": "Walked him through settng his password, again.\n\t\t",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010028",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "I am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
       "incidentTag": ""
     },
     {
@@ -551,6 +731,96 @@
       "incidentTag": ""
     },
     {
+      "incidentNumber": "INC0010020",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "ids needs to be merged. this is creating IPA issue",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010019",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "\nids needs to be merged. this is creating IPA issue",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010014",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "user is asking the IDs to be merged between 2 ids. id1# 875432145, id2# 765143245",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010011",
+      "incidentAssignedTo": "Software",
+      "incidentDescription": "this desc we are creating to testing purpose",
+      "stateOfTicket": "Resolved",
+      "workNotes": "2025-09-02 02:07:24 - System Administrator (Work notes)\ntesting\n\n2025-09-01 16:23:37 - System Administrator (Work notes)\ntesting\n\n2025-09-01 14:21:06 - System Administrator (Work notes)\ntesting\n\n2025-09-01 12:18:23 - System Administrator (Work notes)\ntesting\n\n2025-09-01 12:13:42 - System Administrator (Work notes)\ntesting\n\n2025-09-01 12:11:54 - System Administrator (Work notes)\ntesting\n\n",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "Solution provided and advised the user to .........",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010032",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "while clicking on \"calli in a ticket\" why i am not able to paste anything in the descriptions section",
+      "stateOfTicket": "Resolved",
+      "workNotes": "2025-09-02 03:12:56 - System Administrator (Work notes)\nstill checking with team\n\n2025-09-02 03:11:57 - System Administrator (Work notes)\nchecking with team\n\n",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "checked with team. can be closed",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010024",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "\nI am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010003",
+      "incidentAssignedTo": "",
+      "incidentDescription": "this desc we are creating to testing purpose",
+      "stateOfTicket": "New",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010025",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "\nI am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010007",
+      "incidentAssignedTo": "",
+      "incidentDescription": "this desc we are creating to testing purpose",
+      "stateOfTicket": "Resolved",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "Solution provided",
+      "incidentTag": ""
+    },
+    {
       "incidentNumber": "INC0000051",
       "incidentAssignedTo": "Software",
       "incidentDescription": "Was able to access SAP Controlling application last week but doesn't seem to be working as of today. Is there an outage?",
@@ -611,6 +881,16 @@
       "incidentTag": ""
     },
     {
+      "incidentNumber": "INC0010035",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "testing",
+      "stateOfTicket": "Resolved",
+      "workNotes": "2025-09-02 04:16:31 - System Administrator (Work notes)\ncheking with team\n\n2025-09-02 03:07:29 - System Administrator (Work notes)\nstill testing\n\n",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "can be closed",
+      "incidentTag": ""
+    },
+    {
       "incidentNumber": "INC0000003",
       "incidentAssignedTo": "Network",
       "incidentDescription": "I just moved from floor 2 to floor 3 and my laptop cannot connect to any wireless network.",
@@ -631,12 +911,32 @@
       "incidentTag": ""
     },
     {
+      "incidentNumber": "INC0010017",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "\nids needs to be merged. this is creating IPA issue",
+      "stateOfTicket": "Resolved",
+      "workNotes": "2025-09-02 02:50:32 - System Administrator (Work notes)\nteam is working to fix this\n\n",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "this is resolved as per user and associate",
+      "incidentTag": ""
+    },
+    {
       "incidentNumber": "INC0009005",
       "incidentAssignedTo": "",
       "incidentDescription": "Unable to send or receive emails.",
       "stateOfTicket": "In Progress",
       "workNotes": "2018-12-12 23:18:42 - System Administrator (Work notes)\nupdated the priority to high based on the criticality of the Incident.\n\n",
       "severity_priority": "1 - Critical",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
+      "incidentNumber": "INC0010023",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "I am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
       "howItWasResolved": "",
       "incidentTag": ""
     },
@@ -671,6 +971,16 @@
       "incidentTag": ""
     },
     {
+      "incidentNumber": "INC0010022",
+      "incidentAssignedTo": "Service Desk",
+      "incidentDescription": "I am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+      "stateOfTicket": "In Progress",
+      "workNotes": "",
+      "severity_priority": "5 - Planning",
+      "howItWasResolved": "",
+      "incidentTag": ""
+    },
+    {
       "incidentNumber": "INC0007002",
       "incidentAssignedTo": "",
       "incidentDescription": "Need access to the common drive for sharing files which can be accessed by all members. Please provide access.",
@@ -688,31 +998,47 @@
         "incidentByStateCount": 9
       },
       {
+        "incidentState": "On Hold",
+        "incidentByStateCount": 8
+      },
+      {
         "incidentState": "Closed",
         "incidentByStateCount": 32
       },
       {
-        "incidentState": "On Hold",
-        "incidentByStateCount": 7
-      },
-      {
         "incidentState": "In Progress",
-        "incidentByStateCount": 19
+        "incidentByStateCount": 41
       },
       {
         "incidentState": "Resolved",
-        "incidentByStateCount": 1
+        "incidentByStateCount": 9
       }
     ]
   },
   "howToResolveBook": {
     "incidentResolutionByincidentDescription": [
       {
+        "incidentDescription": "\nids needs to be merged. this is creating IPA issue",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "havind head set issue. please fix this.",
+        "incidentResolution": ""
+      },
+      {
         "incidentDescription": "test ",
         "incidentResolution": "Solution provided"
       },
       {
+        "incidentDescription": "I am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+        "incidentResolution": ""
+      },
+      {
         "incidentDescription": "",
+        "incidentResolution": "Solution provided"
+      },
+      {
+        "incidentDescription": "user is asking the IDs to be merged between 2 ids. id1# 875432145, id2# 765143245",
         "incidentResolution": ""
       },
       {
@@ -722,6 +1048,14 @@
       {
         "incidentDescription": "My computer is not detecting the headphone device. It could be an issue with the USB port.",
         "incidentResolution": "This is not an issue with the USB port. Replaced the headset to resolve the issue."
+      },
+      {
+        "incidentDescription": "I am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "this desc we are creating to testing purpose",
+        "incidentResolution": ""
       },
       {
         "incidentDescription": "I can't remember my password and need to log in. Can someone reset my password asap? I am blocked on several urgent items until I can log in again.",
@@ -753,7 +1087,7 @@
       },
       {
         "incidentDescription": "Seeing puddles of water on the floor of the server room. We've put buckets out to collect the water until this is fixed.",
-        "incidentResolution": ""
+        "incidentResolution": "Solution provided"
       },
       {
         "incidentDescription": "I need to organize my inbox in my email program. However I can't create a sub-folder. I didn't seen an option to create a new folder when right clicking.",
@@ -852,6 +1186,14 @@
         "incidentResolution": ""
       },
       {
+        "incidentDescription": "test",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "user is asking the IDs to be merged between 2 ids. id1# 875432145, id2# 765143245",
+        "incidentResolution": ""
+      },
+      {
         "incidentDescription": "",
         "incidentResolution": ""
       },
@@ -860,7 +1202,31 @@
         "incidentResolution": ""
       },
       {
+        "incidentDescription": "this desc we are creating to testing purpose",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "\nids needs to be merged. this is creating IPA issue",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "I am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+        "incidentResolution": ""
+      },
+      {
         "incidentDescription": "Wifi connection seems slow. Webpages are taking a very long time to load.",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "testing faikures",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "ids needs to be merged. this is creating IPA issue",
+        "incidentResolution": "Solution provided"
+      },
+      {
+        "incidentDescription": "streamlit.errors.StreamlitAPIException: st.session_state.short_desc cannot be modified after the widget with key short_desc is instantiated.\n\nTraceback:\nFile \"C:\\Users\\tanmoy\\Documents\\wind\\RAG_V2_UI_final_demo_ready\\chat_ui.py\", line 837, in <module>\n    main()\n    ~~~~^^\nFile \"C:\\Users\\tanmoy\\Documents\\wind\\RAG_V2_UI_final_demo_ready\\chat_ui.py\", line 828, in main\n    render_create_ticket()\n    ~~~~~~~~~~~~~~~~~~~~^^\nFile \"C:\\Users\\tanmoy\\Documents\\wind\\RAG_V2_UI_final_demo_ready\\chat_ui.py\", line 767, in render_create_ticket\n    st.session_state.short_desc = \"\"\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFile \"C:\\Users\\tanmoy\\AppData\\Roaming\\Python\\Python313\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\tanmoy\\AppData\\Roaming\\Python\\Python313\\site-packages\\streamlit\\runtime\\state\\session_state_proxy.py\", line 136, in __setattr__\n    self[key] = value\n    ~~~~^^^^^\nFile \"C:\\Users\\tanmoy\\AppData\\Roaming\\Python\\Python313\\site-packages\\streamlit\\runtime\\metrics_util.py\", line 443, in wrapped_func\n    result = non_optional_func(*args, **kwargs)\nFile \"C:\\Users\\tanmoy\\AppData\\Roaming\\Python\\Python313\\site-packages\\streamlit\\runtime\\state\\session_state_proxy.py\", line 114, in __setitem__\n    get_session_state()[key] = value\n    ~~~~~~~~~~~~~~~~~~~^^^^^\nFile \"C:\\Users\\tanmoy\\AppData\\Roaming\\Python\\Python313\\site-packages\\streamlit\\runtime\\state\\safe_session_state.py\", line 109, in __setitem__\n    self._state[key] = value\n    ~~~~~~~~~~~^^^^^\nFile \"C:\\Users\\tanmoy\\AppData\\Roaming\\Python\\Python313\\site-packages\\streamlit\\runtime\\state\\session_state.py\", line 533, in __setitem__\n    raise StreamlitAPIException(\n    ...<2 lines>...\n    )\n",
         "incidentResolution": ""
       },
       {
@@ -880,7 +1246,19 @@
         "incidentResolution": "Closed before close notes were made mandatory\n\t\t"
       },
       {
+        "incidentDescription": "this desc we are creating to testing purpose",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "calling in a test ticket",
+        "incidentResolution": ""
+      },
+      {
         "incidentDescription": "Taking a really long time to send emails. Last email took almost a minute for sending to complete and there wasn't even an attachment.",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "ids needs to be merged. this is creating IPA issue",
         "incidentResolution": ""
       },
       {
@@ -894,6 +1272,10 @@
       {
         "incidentDescription": "User forgot their email password.",
         "incidentResolution": "Walked him through settng his password, again.\n\t\t"
+      },
+      {
+        "incidentDescription": "I am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+        "incidentResolution": ""
       },
       {
         "incidentDescription": "",
@@ -928,6 +1310,42 @@
         "incidentResolution": ""
       },
       {
+        "incidentDescription": "ids needs to be merged. this is creating IPA issue",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "\nids needs to be merged. this is creating IPA issue",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "user is asking the IDs to be merged between 2 ids. id1# 875432145, id2# 765143245",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "this desc we are creating to testing purpose",
+        "incidentResolution": "Solution provided and advised the user to ........."
+      },
+      {
+        "incidentDescription": "while clicking on \"calli in a ticket\" why i am not able to paste anything in the descriptions section",
+        "incidentResolution": "checked with team. can be closed"
+      },
+      {
+        "incidentDescription": "\nI am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "this desc we are creating to testing purpose",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "\nI am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "this desc we are creating to testing purpose",
+        "incidentResolution": "Solution provided"
+      },
+      {
         "incidentDescription": "Was able to access SAP Controlling application last week but doesn't seem to be working as of today. Is there an outage?",
         "incidentResolution": ""
       },
@@ -952,6 +1370,10 @@
         "incidentResolution": "Reverted to a previous version."
       },
       {
+        "incidentDescription": "testing",
+        "incidentResolution": "can be closed"
+      },
+      {
         "incidentDescription": "I just moved from floor 2 to floor 3 and my laptop cannot connect to any wireless network.",
         "incidentResolution": ""
       },
@@ -960,7 +1382,15 @@
         "incidentResolution": "Fixed"
       },
       {
+        "incidentDescription": "\nids needs to be merged. this is creating IPA issue",
+        "incidentResolution": "this is resolved as per user and associate"
+      },
+      {
         "incidentDescription": "Unable to send or receive emails.",
+        "incidentResolution": ""
+      },
+      {
+        "incidentDescription": "I am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
         "incidentResolution": ""
       },
       {
@@ -976,10 +1406,14 @@
         "incidentResolution": ""
       },
       {
+        "incidentDescription": "I am seeing this error after ticket creation : Ticket #{st.session_state.new_ticket_number} has been created successfully in UI",
+        "incidentResolution": ""
+      },
+      {
         "incidentDescription": "Need access to the common drive for sharing files which can be accessed by all members. Please provide access.",
         "incidentResolution": ""
       }
     ]
   },
-  "sizeOfTotalIncident": 68
+  "sizeOfTotalIncident": 99
 }
