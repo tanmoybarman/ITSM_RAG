@@ -63,7 +63,8 @@ def initialize_system(reload_data: bool = False):
         if reload_data or index_name not in pc.list_indexes().names():
             print("Loading and processing incident data...")
             # Load and process documents
-            documents = load_json_file("data/incidentListCleaned.json")
+            # Load documents from the API endpoint
+            documents = load_json_file("https://cts-vibeappuk6402-5.azurewebsites.net/api/servicenow/incidentListCleaned")
             if not documents:
                 raise ValueError("No documents were loaded from the data file")
                 

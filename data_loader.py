@@ -5,15 +5,60 @@ from langchain.schema import Document
 from langchain.document_loaders import JSONLoader
 import pandas as pd
 
+import requests
+from typing import Union
+
 def load_json_file(file_path: str) -> List[Document]:
-    """Load json files and return documents."""
-    loader = JSONLoader(
-        file_path=file_path,
-        jq_schema=".result.[],.countOfIncidentsByStatus.count[],.howToResolveBook.incidentResolutionByincidentDescription[],.sizeOfTotalIncident",
-        text_content=False,
-        json_lines=False,
-    )
-    return loader.load()
+    """
+    Load JSON data from a file path or URL and return documents.
+    
+    Args:
+        file_path: Either a local file path or a URL to fetch JSON data from
+        
+    Returns:
+        List[Document]: List of documents loaded from the JSON data
+    """
+    # Check if the input is a URL
+    if file_path.startswith(('http://', 'https://')):
+        try:
+            response = requests.get(file_path, timeout=30)
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            data = response.json()
+            
+            # Create a temporary file to use with JSONLoader
+            import tempfile
+            import os
+            
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
+                json.dump(data, temp_file)
+                temp_path = temp_file.name
+            
+            try:
+                loader = JSONLoader(
+                    file_path=temp_path,
+                    jq_schema=".result.[],.countOfIncidentsByStatus.count[],.howToResolveBook.incidentResolutionByincidentDescription[],.sizeOfTotalIncident",
+                    text_content=False,
+                    json_lines=False,
+                )
+                return loader.load()
+            finally:
+                # Clean up the temporary file
+                try:
+                    os.unlink(temp_path)
+                except Exception:
+                    pass
+                    
+        except requests.exceptions.RequestException as e:
+            raise ValueError(f"Failed to fetch data from URL {file_path}: {str(e)}")
+    else:
+        # Original file loading logic
+        loader = JSONLoader(
+            file_path=file_path,
+            jq_schema=".result.[],.countOfIncidentsByStatus.count[],.howToResolveBook.incidentResolutionByincidentDescription[],.sizeOfTotalIncident",
+            text_content=False,
+            json_lines=False,
+        )
+        return loader.load()
 
 def dict_to_text_on_incident_details(d: Dict[str, Any]) -> str:
     """Convert incident details dictionary to formatted text."""
@@ -141,7 +186,7 @@ def process_incident_data(documents: List[Document]) -> List[Document]:
             if not isinstance(doc, Document):
                 doc = ensure_document(doc)
             all_docs.append(doc)
-    
+    '''
     # Add a document mapping incident numbers to their details
     incident_mapping = {}
     for doc in all_docs:
@@ -152,6 +197,7 @@ def process_incident_data(documents: List[Document]) -> List[Document]:
                     incident_mapping[incident_num] = doc.page_content
     
     # Add a document with all incident numbers and their summaries
+    
     if incident_mapping:
         mapping_content = "\n".join([f"{num}: {desc[:100]}..." for num, desc in incident_mapping.items()])
         mapping_doc = Document(
@@ -159,6 +205,7 @@ def process_incident_data(documents: List[Document]) -> List[Document]:
             metadata={"type": "incident_mapping"}
         )
         all_docs.append(mapping_doc)
+    '''
     
     # Final validation
     for doc in all_docs:
