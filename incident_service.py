@@ -270,6 +270,56 @@ def create_incident(description: str, short_description: str) -> Dict:
         return {"error": error_msg}
 
 
+def fetch_incidents_by_tag() -> Optional[Dict]:
+    """
+    Fetch incidents that have ODS or ICAD tags
+    
+    Returns:
+        Optional[Dict]: JSON response containing incidents or None if there's an error
+    """
+    print("\n=== fetch_incidents_by_tag function called ===")
+    url = "https://dev276871.service-now.com/api/now/table/incident"
+    
+    # Query parameters for the request
+    params = {
+        'sysparm_query': 'sys_tags.994e02c183587210de6cc2d6feaad3c6=994e02c183587210de6cc2d6feaad3c6^ORsys_tags.573e0e0583587210de6cc2d6feaad3c6=573e0e0583587210de6cc2d6feaad3c6',
+        'sysparm_display_value': 'true',
+        'sysparm_exclude_reference_link': 'true',
+        'sysparm_fields': 'number,short_description,description,sys_tags,sys_created_on,assignment_group',
+        'sysparm_limit': 1000  # Adjust based on your needs
+    }
+    
+    # Set up request headers with basic auth
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Basic YWRtaW46WlhTd2FRbnAvNjQk'  # Using the same auth as in create_incident
+    }
+    
+    try:
+        response = requests.get(
+            url,
+            params=params,
+            headers=headers,
+            timeout=30
+        )
+        response.raise_for_status()
+        
+        # Process the response to match expected format
+        result = response.json()
+        if 'result' in result:
+            return {'result': result['result']}
+        return result
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching incidents with tags: {str(e)}")
+        if hasattr(e, 'response') and e.response is not None:
+            try:
+                print(f"Error response: {e.response.text}")
+            except:
+                pass
+        return None
+
 def format_incidents(incidents_data: Dict) -> List[Dict]:
     """
     Format the incidents data for display and sort by 'Created On' in descending order

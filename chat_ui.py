@@ -9,9 +9,59 @@ from dotenv import load_dotenv
 from pprint import pprint
 from main import initialize_system
 from rag_chain import query_rag_chain
-from incident_service import fetch_incidents, format_incidents, get_incident_details, close_incident, create_incident, update_incident
+import incident_service
+import sys
+from atlassian import Confluence
+from typing import Optional, List, Dict, Any, Tuple
+import asyncio
 
-# Custom CSS for ChatGPT-like UI
+# Initialize RAG system once when the app starts
+@st.cache_resource(show_spinner=False)
+def get_rag_system():
+    """Initialize and cache the RAG system.
+    
+    This function will only run once when the app starts or when the cache is cleared.
+    """
+    with st.spinner("Initializing RAG system..."):
+        return initialize_system()
+
+# Initialize the RAG system when the module loads
+rag_chain = get_rag_system()
+
+
+def update_confluence_table(confluence_table, row_index, column_name, new_value):
+    """
+    Update a cell in a Confluence table.
+    
+    Args:
+        confluence_table: The Confluence table object
+        row_index: Index of the row to update
+        column_name: Name of the column to update
+        new_value: New value to set
+        
+    Returns:
+        bool: True if update was successful, False otherwise
+    """
+    try:
+        # Update the cell
+        if not confluence_table.update_cell(
+            row_index=row_index,
+            column_name=column_name,
+            new_value=str(new_value)  # Ensure value is a string
+        ):
+            st.error(f"Failed to update {column_name} for row {row_index}")
+            return False
+        
+        # Save changes to Confluence
+        if not confluence_table.save_changes():
+            st.error("Failed to save changes to Confluence")
+            return False
+        
+        return True
+        
+    except Exception as e:
+        st.error(f"Error updating Confluence: {str(e)}")
+        return False
 st.markdown("""
 <style>
     /* Main container */
@@ -151,22 +201,88 @@ def display_typing_indicator():
 
 def initialize_session_state():
     """Initialize session state variables"""
+    # Initialize messages list if it doesn't exist
     if "messages" not in st.session_state:
         st.session_state.messages = []
-    if "initialized" not in st.session_state:
-        st.session_state.initialized = False
-    if "search_type" not in st.session_state:
-        st.session_state.search_type = "general"
-    if "show_ticket_details" not in st.session_state:
-        st.session_state.show_ticket_details = False
-    if "show_view_ticket_button" not in st.session_state:
-        st.session_state.show_view_ticket_button = False
-    if "ticket_short_description" not in st.session_state:
-        st.session_state.ticket_short_description = ""
-    if "ticket_description" not in st.session_state:
-        st.session_state.ticket_description = ""
-    if "show_update_options" not in st.session_state:
-        st.session_state.show_update_options = False
+    
+    # Track if we've initialized the RAG system in this session
+    if "rag_initialized" not in st.session_state:
+        st.session_state.rag_initialized = False
+    
+    # Initialize other UI state variables
+    default_values = {
+        "search_type": "general",
+        "show_ticket_details": False,
+        "show_view_ticket_button": False,
+        "ticket_short_description": "",
+        "ticket_description": "",
+        "show_update_options": False,
+        "active_tab": "Incidents",
+        "rag_chain_initializing": False
+    }
+    
+    # Set default values for any missing keys
+    for key, default_value in default_values.items():
+        if key not in st.session_state:
+            st.session_state[key] = default_value
+
+def render_ods_icad():
+    """Render the ODS & ICAD section with tagged incidents"""
+    st.title("ODS & ICAD Incidents")
+    st.write("This section displays incidents tagged with ODS or ICAD.")
+    
+    # Add a refresh button with a unique key
+    if st.button("🔄 Refresh Incidents", key="refresh_incidents_btn"):
+        st.rerun()
+    
+    # Create two columns for ODS and ICAD incidents
+    col1, col2 = st.columns(2)
+    
+    # Fetch all tagged incidents (both ODS and ICAD)
+    with st.spinner("Loading incidents..."):
+        try:
+            tagged_incidents = incident_service.fetch_incidents_by_tag()
+            
+            # Separate ODS and ICAD incidents
+            ods_incidents = []
+            icad_incidents = []
+            
+            if tagged_incidents and 'result' in tagged_incidents:
+                for incident in tagged_incidents['result']:
+                    # Check if the incident has ODS or ICAD tag
+                    if 'sys_tags' in incident and incident['sys_tags']:
+                        if 'ODS' in incident['sys_tags']:
+                            ods_incidents.append(incident)
+                        if 'ICAD' in incident['sys_tags']:
+                            icad_incidents.append(incident)
+            
+        except Exception as e:
+            st.error(f"Error loading incidents: {str(e)}")
+            return
+    
+    # Display ODS incidents
+    with col1:
+        st.subheader("🔵 ODS Incidents")
+        if ods_incidents:
+            for incident in ods_incidents:
+                with st.expander(f"{incident.get('number')}: {incident.get('short_description', 'No description')}"):
+                    st.write(f"**Assignment Group:** {incident.get('assignment_group', 'N/A')}")
+                    st.write(f"**Created:** {incident.get('sys_created_on', 'N/A')}")
+                    st.write(f"**Description:** {incident.get('description', 'No description available')}")
+        else:
+            st.info("No ODS incidents found.")
+    
+    # Display ICAD incidents
+    with col2:
+        st.subheader("🟢 ICAD Incidents")
+        if icad_incidents:
+            for incident in icad_incidents:
+                with st.expander(f"{incident.get('number')}: {incident.get('short_description', 'No description')}"):
+                    st.write(f"**Assignment Group:** {incident.get('assignment_group', 'N/A')}")
+                    st.write(f"**Created:** {incident.get('sys_created_on', 'N/A')}")
+                    st.write(f"**Description:** {incident.get('description', 'No description available')}")
+        else:
+            st.info("No ICAD incidents found.")
 
 def render_sidebar():
     """Render the sidebar with controls"""
@@ -218,21 +334,35 @@ def render_sidebar():
         reload_data = st.checkbox("Reload data from source", value=False,
                                help="Check this to force reload data from the source files")
         
-        # Initialize button
-        if not st.session_state.get("initialized", False):
-            if st.button("🚀 Initialize AI System", use_container_width=True):
-                with st.spinner("Initializing AI system (this may take a minute)..."):
-                    try:
-                        rag_chain = initialize_system(reload_data=reload_data)
-                        if rag_chain:
-                            st.session_state.rag_chain = rag_chain
-                            st.session_state.initialized = True
-                            st.rerun()
-                        else:
-                            st.error("Failed to initialize the AI chain. Please check the logs.")
-                    except Exception as e:
-                        st.error(f"Error during initialization: {str(e)}")
-                        st.error("Please check your API keys and try again.")
+        # Show initialization button if not already initializing
+        if not st.session_state.rag_initialized and not st.session_state.rag_chain_initializing:
+            if st.button("🚀 Initialize AI System", use_container_width=True, key="init_ai_system_btn"):
+                st.session_state.rag_chain_initializing = True
+                st.rerun()
+        
+        # Handle initialization in a separate block to show spinner
+        if st.session_state.rag_chain_initializing and not st.session_state.rag_initialized:
+            with st.spinner("Initializing AI system (this may take a minute)..."):
+                try:
+                    rag_chain = initialize_system(reload_data=reload_data)
+                    if rag_chain:
+                        st.session_state.rag_initialized = True
+                        st.session_state.rag_chain_initializing = False
+                        st.rerun()
+                    else:
+                        st.error("Failed to initialize the AI chain. Please check the logs.")
+                        st.session_state.rag_chain_initializing = False
+                except Exception as e:
+                    st.error(f"Error during initialization: {str(e)}")
+                    st.error("Please check your API keys and try again.")
+                    st.session_state.rag_chain_initializing = False
+        
+        # Show success message if initialized
+        if st.session_state.rag_initialized:
+            st.success("✅ AI System Initialized")
+            if st.button("🔄 Reinitialize AI System", key="reinit_ai_system_btn"):
+                st.session_state.rag_initialized = False
+                st.rerun()
         return reload_data
 
 def render_chat():
@@ -244,6 +374,14 @@ def render_chat():
             <p style='color: #666; font-size: 1.1rem;'>How can I help you today?</p>
         </div>
     """, unsafe_allow_html=True)
+    
+    # Use the globally cached RAG chain
+    if not rag_chain:
+        st.error("Failed to initialize the AI system. Please restart the application.")
+        return
+        
+    # Store the rag_chain in session state for other functions to use
+    st.session_state.rag_chain = rag_chain
     
     # Chat container
     chat_container = st.container()
@@ -448,7 +586,7 @@ def render_incident_management():
         st.session_state.rows_per_page = 10
     
     # Add a refresh button
-    if st.button("🔄 Refresh Incidents"):
+    if st.button("🔄 Refresh Incidents", key="refresh_incidents_list_btn"):
         st.session_state.incidents_data = None
         st.session_state.show_details = False
         st.session_state.selected_incident_number = None
@@ -462,11 +600,11 @@ def render_incident_management():
     # Fetch incidents if not already in session state
     if st.session_state.incidents_data is None:
         with st.spinner("Loading incidents..."):
-            st.session_state.incidents_data = fetch_incidents()
+            st.session_state.incidents_data = incident_service.fetch_incidents()
     
     if st.session_state.incidents_data:
         # Format the data using the service function
-        formatted_incidents = format_incidents(st.session_state.incidents_data)
+        formatted_incidents = incident_service.format_incidents(st.session_state.incidents_data)
         
         if formatted_incidents:
             # Add pagination controls
@@ -501,17 +639,17 @@ def render_incident_management():
             # Pagination controls
             col1, col2, col3 = st.columns([1, 2, 1])
             with col1:
-                if st.button("⏮️ First", disabled=st.session_state.page == 1):
+                if st.button("⏮️ First", disabled=st.session_state.page == 1, key="pagination_first_btn"):
                     st.session_state.page = 1
                     st.rerun()
-                if st.button("⬅️ Previous", disabled=st.session_state.page == 1):
+                if st.button("⬅️ Previous", disabled=st.session_state.page == 1, key="pagination_prev_btn"):
                     st.session_state.page -= 1
                     st.rerun()
             with col3:
-                if st.button("Next ➡️", disabled=st.session_state.page == total_pages):
+                if st.button("Next ➡️", disabled=st.session_state.page == total_pages, key="pagination_next_btn"):
                     st.session_state.page += 1
                     st.rerun()
-                if st.button("Last ⏭️", disabled=st.session_state.page == total_pages):
+                if st.button("Last ⏭️", disabled=st.session_state.page == total_pages, key="pagination_last_btn"):
                     st.session_state.page = total_pages
                     st.rerun()
             
@@ -580,7 +718,7 @@ def render_incident_management():
                         st.session_state.last_incident_details.get('number') != incident_number):
                         with st.spinner("Loading incident details..."):
                             try:
-                                incident_details = get_incident_details(incident_number)
+                                incident_details = incident_service.get_incident_details(incident_number)
                                 if isinstance(incident_details, dict) and 'result' in incident_details and incident_details['result']:
                                     incident_data = incident_details['result'][0]
                                     st.session_state.last_incident_details = incident_data
@@ -679,7 +817,7 @@ def render_incident_management():
                                                             "close_notes": close_notes,
                                                             "close_code": "Solution provided"
                                                         }
-                                                        success = update_incident(incident_number, payload)
+                                                        success = incident_service.update_incident(incident_number, payload)
                                                         if success:
                                                             st.success(f"Incident {incident_number} has been resolved.")
                                                             st.session_state.show_update_options = False
@@ -708,7 +846,7 @@ def render_incident_management():
                                                                 "hold_reason": hold_reason,
                                                                 "work_notes": work_notes
                                                             }
-                                                            success = update_incident(incident_number, payload)
+                                                            success = incident_service.update_incident(incident_number, payload)
                                                             if success:
                                                                 st.success(f"Hold notes for incident {incident_number} have been updated.")
                                                                 st.session_state.show_update_options = False
@@ -735,7 +873,7 @@ def render_incident_management():
                                                                 "hold_reason": hold_reason,
                                                                 "work_notes": work_notes
                                                             }
-                                                            success = update_incident(incident_number, payload)
+                                                            success = incident_service.update_incident(incident_number, payload)
                                                             if success:
                                                                 st.success(f"Incident {incident_number} has been put on hold.")
                                                                 st.session_state.show_update_options = False
@@ -842,7 +980,7 @@ def render_create_ticket():
                 st.error("Please provide a short description for the ticket.")
             else:
                 with st.spinner("Creating your ticket..."):
-                    result = create_incident(description, short_description)
+                    result = incident_service.create_incident(description, short_description)
                     
                     if result and 'result' in result and 'number' in result['result']:
                         ticket_number = result['result']['number']
@@ -895,30 +1033,513 @@ def render_create_ticket():
         # Auto-clear the success message after a delay
         st.session_state.show_ticket_details = False
 
+def update_confluence_page(confluence, page_id, title, new_content):
+    """Update the Confluence page with new content"""
+    try:
+        import requests
+        from base64 import b64encode
+        
+        # Get current page to preserve other content
+        current_page = confluence.get_page_by_id(page_id, expand='body.storage,version')
+        
+        # Get parent ID if available
+        parent_id = None
+        if current_page.get('ancestors'):
+            parent_id = current_page['ancestors'][-1].get('id')
+        
+        # Prepare the update payload
+        update_data = {
+            'id': page_id,
+            'type': 'page',
+            'title': title,
+            'body': {
+                'storage': {
+                    'value': new_content,
+                    'representation': 'storage'
+                }
+            },
+            'version': {
+                'number': current_page.get('version', {}).get('number', 0) + 1,
+                'message': f'Updated via ITSM_RAG at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
+            }
+        }
+        
+        # Add parent if available
+        if parent_id:
+            update_data['ancestors'] = [{'id': parent_id}]
+        
+        # Get credentials from environment
+        email = os.getenv('CONFLUENCE_EMAIL')
+        api_token = os.getenv('CONFLUENCE_API_TOKEN')
+        
+        if not email or not api_token:
+            raise ValueError("Confluence email or API token not found in environment variables")
+        
+        # Create auth header
+        auth_string = f"{email}:{api_token}"
+        auth_token = b64encode(auth_string.encode()).decode()
+        
+        # Update the page using requests
+        url = f"{confluence.url}/rest/api/content/{page_id}"
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Basic {auth_token}'
+        }
+        
+        response = requests.put(
+            url,
+            headers=headers,
+            json=update_data
+        )
+        
+        if response.status_code != 200:
+            raise Exception(f"Failed to update page: {response.status_code} - {response.text}")
+            
+        return response.json()
+    except Exception as e:
+        st.error(f"Failed to update Confluence page: {str(e)}")
+        if 'current_page' in locals():
+            st.error(f"Debug - Page data: {current_page}")
+        return None
+
+def render_confluence_table():
+    """Render the Confluence table from the specified page with editing capabilities"""
+    
+    # Skip if not in the Confluence tab to prevent unnecessary processing
+    if 'active_tab' not in st.session_state or st.session_state.get('active_tab') != 'Confluence':
+        return
+        
+    try:
+        from atlassian import Confluence
+        from dotenv import load_dotenv
+        import os
+        import pandas as pd
+        from datetime import datetime
+        
+        load_dotenv()
+        
+        # Get Confluence configuration from environment variables
+        confluence_url = os.getenv('CONFLUENCE_URL')
+        email = os.getenv('CONFLUENCE_EMAIL')
+        api_token = os.getenv('CONFLUENCE_API_TOKEN')
+        space_key = os.getenv('CONFLUENCE_SPACE_KEY')
+        page_id = os.getenv('CONFLUENCE_PAGE_ID')
+        
+        if not all([confluence_url, email, api_token, space_key, page_id]):
+            st.error("Missing Confluence configuration in .env file")
+            return
+            
+        # Initialize Confluence client
+        confluence = Confluence(
+            url=confluence_url,
+            username=email,
+            password=api_token,
+            cloud=True
+        )
+        
+        # Get page content with version information
+        try:
+            page = confluence.get_page_by_id(page_id, expand='version,body.storage')
+            original_content = page['body']['storage']['value']
+            
+            # Display page title and last updated time if available
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                st.subheader(page.get('title', 'Untitled Page'))
+            with col2:
+                version_info = page.get('version', {})
+                if 'when' in version_info:
+                    from datetime import datetime, timezone
+                    import pytz
+                    
+                    # Parse the UTC timestamp
+                    utc_time = datetime.fromisoformat(version_info['when'].replace('Z', '+00:00'))
+                    
+                    # Convert to IST (UTC+5:30)
+                    ist = pytz.timezone('Asia/Kolkata')
+                    est = pytz.timezone('US/Eastern')
+                    
+                    # Format the times
+                    utc_str = utc_time.strftime('%Y-%m-%d %H:%M:%S UTC')
+                    ist_str = utc_time.astimezone(ist).strftime('%Y-%m-%d %H:%M:%S IST')
+                    est_str = utc_time.astimezone(est).strftime('%Y-%m-%d %H:%M:%S EST')
+                    
+                    # Display in a more compact format
+                    st.caption(f"Last updated: {ist_str} | {est_str}")
+                else:
+                    st.caption("Last update time not available")
+                    
+        except Exception as e:
+            st.error(f"Error loading page content: {str(e)}")
+            st.info("Please check if the page exists and you have the correct permissions.")
+            return
+        
+        # Add a refresh button
+        if st.button("🔄 Refresh Page"):
+            st.rerun()
+        
+        # Display the page content
+        st.markdown("---")
+        st.markdown("### Page Content")
+        
+        # Extract and display tables using pandas
+        try:
+            # Read all tables from the HTML content
+            from io import StringIO
+            try:
+                tables = pd.read_html(StringIO(original_content))
+            except DeprecationWarning:
+                st.warning("Deprecation warning: pd.read_html() will be deprecated in a future version. Using html5lib as parser.")
+                tables = pd.read_html(StringIO(original_content), flavor='html5lib')
+            
+            if not tables:
+                st.info("No tables found on this Confluence page.")
+                return
+                
+            # Store original and edited tables if not already in session state
+            if 'original_tables' not in st.session_state:
+                st.session_state.original_tables = tables
+                st.session_state.edited_tables = [df.copy() for df in tables]
+            
+            # Ensure edited_tables has the same number of tables as original
+            if len(st.session_state.edited_tables) != len(tables):
+                st.session_state.edited_tables = [df.copy() for df in tables]
+            
+            # Display each table with editing capabilities
+            for i, df in enumerate(st.session_state.original_tables):
+                with st.expander(f"📊 Table {i+1}", expanded=True):
+                    # Use a unique key for each table to maintain state
+                    table_key = f"table_{i}_{hash(frozenset(df.columns))}"
+                
+                # Initialize session state for this table if it doesn't exist
+                if table_key not in st.session_state:
+                    # Convert to dict of lists for better performance
+                    st.session_state[table_key] = {
+                        'data': df.to_dict('records'),
+                        'columns': list(df.columns)
+                    }
+                    
+                # Get current data from session state
+                table_data = st.session_state[table_key]
+                
+                # Check if the first column is a serial column
+                first_col = table_data['columns'][0].lower()
+                is_serial_col = any(term in first_col for term in ['serial', 'sr', 'sno', 'sl no'])
+                
+                # Create a DataFrame from the session state data
+                display_df = pd.DataFrame(table_data['data'])
+                
+                # Update serial numbers if needed
+                if is_serial_col and not display_df.empty:
+                    display_df[display_df.columns[0]] = range(1, len(display_df) + 1)
+                
+                # Create a container for the table with custom CSS to improve editing experience
+                st.markdown("""
+                <style>
+                    /* Remove dimming effect */
+                    .stDataFrame {
+                        --shadow: none !important;
+                    }
+                    
+                    /* Style the edit cells */
+                    .stDataFrame [data-testid='stDataFrameCell'] {
+                        padding: 0.5rem;
+                        background-color: white !important;
+                    }
+                    
+                    /* Make the table more compact and readable */
+                    .stDataFrame {
+                        font-size: 0.9rem;
+                        margin: 0 !important;
+                    }
+                    
+                    /* Remove focus outline that causes dimming */
+                    .stDataFrame:focus, .stDataFrame:focus-within {
+                        outline: none !important;
+                        box-shadow: none !important;
+                    }
+                    
+                    /* Style for editable cells */
+                    .stDataFrame [data-testid='stDataFrameCell']:focus-within {
+                        border: 1px solid #4CAF50 !important;
+                        box-shadow: 0 0 0 1px #4CAF50 !important;
+                    }
+                    
+                    /* Remove modal background */
+                    .stDataFrame [role='dialog'] {
+                        background-color: transparent !important;
+                        box-shadow: none !important;
+                    }
+                </style>
+                """, unsafe_allow_html=True)
+                
+                # Initialize session state for tracking table changes
+                if f'table_{i}_needs_update' not in st.session_state:
+                    st.session_state[f'table_{i}_needs_update'] = False
+                
+                # Removed Add Row and Remove Last Row buttons as requested
+                
+                # Display the data editor with optimized settings
+                with st.container():
+                    # Use a form to handle cell edits without rerunning the entire script
+                    # Use a container to group the table editor and auto-save changes
+                    with st.container():
+                        edited_df = st.data_editor(
+                            display_df,
+                            num_rows="fixed",
+                            use_container_width=True,
+                            key=f"table_editor_{i}",
+                            column_config={
+                                col: st.column_config.Column(
+                                    col,
+                                    help=f"Edit {col} values",
+                                    width="medium"
+                                ) for col in table_data['columns']
+                            },
+                            hide_index=True,
+                            disabled=False
+                        )
+                        
+                        # Auto-save changes when table is edited
+                        if not edited_df.equals(display_df):
+                            # Update the serial column if it exists
+                            if is_serial_col and not edited_df.empty:
+                                edited_df[edited_df.columns[0]] = range(1, len(edited_df) + 1)
+                            
+                            # Update the session state
+                            st.session_state.edited_tables[i] = edited_df
+                            st.session_state[table_key]['data'] = edited_df.to_dict('records')
+                
+                # Single column for the validate button
+                col1, _ = st.columns([1, 5])
+                with col1:
+                    if st.button(f"🔍 Validate Incidents", key=f"validate_table_{i}"):
+                        try:
+                            # Get the current table data
+                            current_table = st.session_state.edited_tables[i]
+                            
+                            # Initialize Confluence client
+                            confluence = Confluence(
+                                url=os.getenv('CONFLUENCE_URL'),
+                                username=os.getenv('CONFLUENCE_EMAIL'),
+                                password=os.getenv('CONFLUENCE_API_TOKEN'),
+                                cloud=True
+                            )
+                            
+                            # Create a status container for validation progress
+                            status_container = st.status("Validating incidents...", expanded=True)
+                            
+                            # Create a progress bar
+                            progress_bar = st.progress(0)
+                            
+                            # Show available columns in debug mode
+                            # st.write("Debug - Available columns in the table:", [str(col) for col in current_table.columns.tolist()])
+                            # st.write("Debug - First few rows:", current_table.head(2).to_dict('records'))
+                            
+                            # Define the exact column names from the table
+                            url_col = 'Url'  # Matches the exact case in your table
+                            type_col = 'Type'  # Matches the exact case in your table
+                            
+                            # Check if required columns exist
+                            if url_col not in current_table.columns or type_col not in current_table.columns:
+                                st.error(f"Required columns not found. Need '{url_col}' and '{type_col}'. Found columns: {current_table.columns.tolist()}")
+                                return
+                            
+                            # Prepare URL data for validation
+                            url_data = []
+                            ticket_numbers = []
+                            
+                            for idx, row in current_table.iterrows():
+                                # Get the ticket number for updating the correct row
+                                ticket_number = row.get('Ticket', row.get('ticket', row.get('Incident', f'Row {idx+1}')))
+                                url_value = row.get(url_col, '')
+                                type_value = row.get(type_col, '')
+                                
+                                if url_value and type_value:  # Only add if we have both URL and type
+                                    url_data.append((url_value, type_value, ticket_number))
+                                ticket_numbers.append(ticket_number)
+                            
+                            # Initialize Confluence table updater
+                            from confluence_table import ConfluenceTable
+                            try:
+                                page_id = os.getenv('CONFLUENCE_PAGE_ID')
+                                if not page_id:
+                                    st.error("CONFLUENCE_PAGE_ID is not set in .env file")
+                                    return
+                                confluence_table = ConfluenceTable(confluence, page_id)
+                                if not confluence_table.load_table():
+                                    st.error("Failed to load table from Confluence page")
+                                    return
+                                st.session_state.confluence_table = confluence_table
+                            except Exception as e:
+                                st.error(f"Failed to initialize Confluence table: {str(e)}")
+                                return
+                            
+                            # Initialize async validator
+                            from async_url_validator import AsyncURLValidator
+                            validator = AsyncURLValidator(max_concurrent_requests=10, timeout=15)
+                            
+                            # Run async validation
+                            import asyncio
+                            
+                            # Create a new event loop for the async operation
+                            def run_async_validation():
+                                loop = asyncio.new_event_loop()
+                                asyncio.set_event_loop(loop)
+                                try:
+                                    return loop.run_until_complete(validator.validate_urls(url_data))
+                                finally:
+                                    loop.close()
+                            
+                            # Show progress while validating
+                            with st.spinner("Validating URLs (this may take a moment)..."):
+                                validation_results = run_async_validation()
+                            
+                            # Create a mapping of ticket numbers to their results for easier lookup
+                            results_by_ticket = {}
+                            for result in validation_results:
+                                if not result:
+                                    continue
+                                ticket = result.get('ticket')
+                                if ticket:
+                                    results_by_ticket[ticket] = result
+                            
+                            # Process each row in the table and update with validation results
+                            formatted_results = []
+                            for idx, (_, row) in enumerate(current_table.iterrows()):
+                                ticket_number = ticket_numbers[idx] if idx < len(ticket_numbers) else f'Row {idx+1}'
+                                result = results_by_ticket.get(ticket_number, {})
+                                
+                                # Create the result entry
+                                formatted_result = {
+                                    'ticket': ticket_number,
+                                    'status': result.get('status', 'Not Validated'),
+                                    'details': result.get('details', 'No validation performed'),
+                                    'valid': result.get('valid', False)
+                                }
+                                formatted_results.append(formatted_result)
+                                
+                                # Update the status in the table
+                                if 'Status' in current_table.columns:
+                                    current_table.at[idx, 'Status'] = formatted_result['status']
+                                    
+                                    # Update the status in Confluence
+                                    if 'confluence_table' in st.session_state:
+                                        if update_confluence_table(st.session_state.confluence_table, idx, 'Status', formatted_result['status']):
+                                            update_confluence_table(st.session_state.confluence_table, idx, 'Updated_Ts_Lastrun', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                                            st.toast(f"Updated ticket {ticket_number} in Confluence", icon="✅")
+                                        else:
+                                            st.error(f"Failed to update status for ticket {ticket_number}")
+                                
+                                # Update details if the column exists
+                                if 'details' in current_table.columns:
+                                    current_table.at[idx, 'details'] = formatted_result['details']
+                            
+                            # Update the session state with the modified table
+                            st.session_state.edited_tables[i] = current_table
+                            validation_results = formatted_results
+
+                            # Show validation results
+                            with status_container:
+                                st.write("## Validation Results")
+                                results_df = pd.DataFrame(validation_results)
+                                
+                                # Add color coding for status
+                                def color_status(val):
+                                    if val == 'Valid':
+                                        return 'color: green; font-weight: bold'
+                                    elif val == 'Error':
+                                        return 'color: red; font-weight: bold'
+                                    elif val == 'Skipped':
+                                        return 'color: orange; font-weight: bold'
+                                    return ''
+                                
+                                # Display the results
+                                st.dataframe(
+                                    results_df.style.applymap(color_status, subset=['status']),
+                                    width='stretch'
+                                )
+                                
+                                # Show summary
+                                valid_count = sum(1 for r in validation_results if r.get('valid', False))
+                                total_count = len(validation_results)
+                                
+                                st.success(
+                                    f"Validation complete! {valid_count} of {total_count} incidents are valid."
+                                )
+                                
+                                # Update the progress bar to 100%
+                                progress_bar.progress(100)
+                            
+                        except Exception as e:
+                            with status_container:
+                                st.error(f"Error during validation: {str(e)}")
+                            
+                        # Ensure the spinner is stopped after validation is complete
+                        status_container.update(state="complete")
+                
+                # Removed download button as requested
+                    
+                st.markdown("---")
+            
+        except Exception as e:
+            st.error(f"Error processing Confluence tables: {str(e)}")
+            st.info("The page may not contain any tables or they might be in an unsupported format.")
+            # Show raw content for debugging
+            if 'original_content' in locals():
+                with st.expander("📝 View Raw Page Content"):
+                    st.code(original_content, language='html')
+            return
+            
+    except Exception as e:
+        st.error(f"Error loading Confluence data: {str(e)}")
+        st.info("Please check your Confluence configuration in the .env file")
+        if 'original_content' in locals():
+            with st.expander("View Raw Page Content"):
+                st.code(original_content, language='html')
+        return
+
 def main():
     """Main application"""
     initialize_session_state()
     reload_data = render_sidebar()
     
     # Create tabs for navigation
-    tab1, tab2, tab3 = st.tabs(["📋 Incident Management", "📞 Call in a Ticket", "💬 Chat"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "📋 Incidents", 
+        "📞 New Ticket", 
+        "💬 Chat", 
+        "🔍 ODS & ICAD",
+        "🌐 Confluence"
+    ])
     
-    # Clear form data when switching to the ticket creation tab
-    if tab2:
-        st.session_state.form_short_description = ""
-        st.session_state.form_description = ""
-    
+    # Track active tab and render content
     with tab1:
+        st.session_state.active_tab = "Incidents"
         render_incident_management()
         
     with tab2:
+        st.session_state.active_tab = "New Ticket"
+        # Clear form data when switching to the ticket creation tab
+        if 'form_short_description' not in st.session_state:
+            st.session_state.form_short_description = ""
+            st.session_state.form_description = ""
         render_create_ticket()
         
     with tab3:
-        if st.session_state.get("initialized", False):
-            render_chat()
-        else:
-            st.warning("⚠️ Please initialize the AI system from the sidebar to use the chat feature.")
+        st.session_state.active_tab = "Chat"
+        
+        # The RAG system is now initialized when the app starts via the cached function
+        # Just render the chat interface directly
+        render_chat()
+            
+    with tab4:
+        st.session_state.active_tab = "ODS & ICAD"
+        render_ods_icad()
+        
+    with tab5:
+        st.session_state.active_tab = "Confluence"
+        render_confluence_table()
 
 if __name__ == "__main__":
     main()

@@ -144,7 +144,7 @@ def get_retriever(vector_store: PineconeVectorStore, min_confidence: float = 0.5
                     print(f"  Result {i+1}:")
                 source = doc.metadata.get('type', 'unknown')
                 print(f"    Source: {source}")
-                print(f"    Content: {doc.page_content[:100]}...")
+                print(f"    Content: {doc.page_content}")
         
         import re
             

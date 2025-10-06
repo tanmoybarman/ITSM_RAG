@@ -62,4 +62,6 @@ python main.py "your query here"
 - Run the streamlit app using the following command:
 ```bash
 python -m streamlit run --server.port=8502 --server.headless=true --server.enableCORS=false --server.enableXsrfProtection=false --server.fileWatcherType=poll app.py
+
+python -m streamlit run chat_ui.py
 ```
