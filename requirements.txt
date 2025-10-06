@@ -1,24 +1,27 @@
-# Core dependencies
-langchain==0.1.0
-langchain-community==0.0.10
-langchain-mistralai==0.1.0
-langchain-pinecone==0.1.0
-sentence-transformers==2.2.2
-python-dotenv==1.0.0
-pandas==2.0.0
-streamlit==1.32.0
-requests==2.31.0
-transformers==4.30.0
-torch==2.0.0
-jq==1.6.0
-supabase==2.0.0
-atlassian-python-api==3.41.0
-nltk==3.8.1
-lxml==4.9.0
+# Core dependencies with compatible versions
+langchain>=0.0.200
+langchain-community>=0.0.10
+langchain-mistralai>=0.1.0
+langchain-pinecone>=0.1.0
+sentence-transformers>=2.2.2
+python-dotenv>=1.0.0
+pandas>=2.0.0
+streamlit>=1.32.0
+requests>=2.31.0
+transformers>=4.30.0
+torch>=2.0.0
+jq>=1.6.0
+supabase>=2.0.0
+atlassian-python-api>=3.41.0
+nltk>=3.8.1
+lxml>=4.9.0
 
 # Additional dependencies for Confluence
-beautifulsoup4==4.12.2
-html5lib==1.1
+beautifulsoup4>=4.12.2
+html5lib>=1.1
+
+# Pinning specific versions to resolve conflicts
+tokenizers>=0.11.1,<0.14.0
 
 # Ensure lxml is installed with binary wheels
 --only-binary lxml
