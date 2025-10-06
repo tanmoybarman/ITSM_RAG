@@ -1,4 +1,26 @@
 import streamlit as st
+import nltk
+
+def download_nltk_data():
+    try:
+        nltk.data.find('tokenizers/punkt')
+        nltk.data.find('corpora/stopwords')
+    except LookupError:
+        import ssl
+        try:
+            _create_unverified_https_context = ssl._create_unverified_context
+        except AttributeError:
+            pass
+        else:
+            ssl._create_default_https_context = _create_unverified_https_context
+        
+        nltk.download('punkt', quiet=True)
+        nltk.download('stopwords', quiet=True)
+
+# Download required NLTK data when the app starts
+download_nltk_data()
+
+import streamlit as st
 import os
 import re
 import time
