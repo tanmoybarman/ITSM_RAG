@@ -1,26 +1,43 @@
 import streamlit as st
+import os
 import nltk
 
-def download_nltk_data():
+def setup_nltk():
+    """Setup NLTK data directory and download required packages."""
     try:
-        nltk.data.find('tokenizers/punkt')
-        nltk.data.find('corpora/stopwords')
-    except LookupError:
-        import ssl
-        try:
-            _create_unverified_https_context = ssl._create_unverified_context
-        except AttributeError:
-            pass
-        else:
-            ssl._create_default_https_context = _create_unverified_https_context
+        # Create a directory for NLTK data in the app's working directory
+        nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
+        os.makedirs(nltk_data_dir, exist_ok=True)
         
-        nltk.download('punkt', quiet=True)
-        nltk.download('stopwords', quiet=True)
+        # Set NLTK to use our custom directory
+        nltk.data.path.append(nltk_data_dir)
+        
+        # Download required NLTK data
+        required_data = ['punkt', 'stopwords']
+        
+        for data in required_data:
+            try:
+                nltk.data.find(f'tokenizers/{data}' if data == 'punkt' else f'corpora/{data}')
+            except LookupError:
+                # Handle SSL certificate issues
+                import ssl
+                try:
+                    _create_unverified_https_context = ssl._create_unverified_context
+                except AttributeError:
+                    pass
+                else:
+                    ssl._create_default_https_context = _create_unverified_https_context
+                
+                # Download the data
+                nltk.download(data, download_dir=nltk_data_dir, quiet=True)
+                
+    except Exception as e:
+        st.warning(f"NLTK setup warning: {str(e)}")
+        # Try to continue even if NLTK setup fails
+        pass
 
-# Download required NLTK data when the app starts
-download_nltk_data()
-
-import streamlit as st
+# Initialize NLTK when the app starts
+setup_nltk()
 import os
 import re
 import time

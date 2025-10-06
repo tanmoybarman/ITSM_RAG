@@ -422,16 +422,46 @@ def create_rag_chain(retriever, mistral_api_key: str):
 from typing import Union, Awaitable, Callable, Dict, Any, List, Set
 import asyncio
 import nltk
+import os
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 
-# Download required NLTK data
-try:
-    nltk.data.find('tokenizers/punkt')
-    nltk.data.find('corpora/stopwords')
-except LookupError:
-    nltk.download('punkt')
-    nltk.download('stopwords')
+def setup_nltk():
+    """Setup NLTK data directory and download required packages."""
+    try:
+        # Create a directory for NLTK data in the app's working directory
+        nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
+        os.makedirs(nltk_data_dir, exist_ok=True)
+        
+        # Set NLTK to use our custom directory
+        nltk.data.path.append(nltk_data_dir)
+        
+        # Download required NLTK data
+        required_data = ['punkt', 'stopwords']
+        
+        for data in required_data:
+            try:
+                nltk.data.find(f'tokenizers/{data}' if data == 'punkt' else f'corpora/{data}')
+            except LookupError:
+                # Handle SSL certificate issues
+                import ssl
+                try:
+                    _create_unverified_https_context = ssl._create_unverified_context
+                except AttributeError:
+                    pass
+                else:
+                    ssl._create_default_https_context = _create_unverified_https_context
+                
+                # Download the data
+                nltk.download(data, download_dir=nltk_data_dir, quiet=True)
+                
+    except Exception as e:
+        print(f"NLTK setup warning: {str(e)}")
+        # Try to continue even if NLTK setup fails
+        pass
+
+# Initialize NLTK when the module loads
+setup_nltk()
 import inspect
 
 def ensure_document(doc):
