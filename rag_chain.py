@@ -434,31 +434,47 @@ def setup_nltk():
         os.makedirs(nltk_data_dir, exist_ok=True)
         
         # Set NLTK to use our custom directory
-        nltk.data.path.append(nltk_data_dir)
+        nltk.data.path.insert(0, nltk_data_dir)  # Insert at beginning to prioritize
         
-        # Download required NLTK data
-        required_data = ['punkt', 'stopwords']
+        # Handle SSL certificate issues
+        import ssl
+        try:
+            _create_unverified_https_context = ssl._create_unverified_context
+        except AttributeError:
+            pass
+        else:
+            ssl._create_default_https_context = _create_unverified_https_context
         
-        for data in required_data:
+        # Download required NLTK data with explicit paths
+        required_data = [
+            ('tokenizers/punkt', 'punkt'),
+            ('corpora/stopwords', 'stopwords')
+        ]
+        
+        for data_path, data_name in required_data:
             try:
-                nltk.data.find(f'tokenizers/{data}' if data == 'punkt' else f'corpora/{data}')
+                nltk.data.find(data_path)
             except LookupError:
-                # Handle SSL certificate issues
-                import ssl
-                try:
-                    _create_unverified_https_context = ssl._create_unverified_context
-                except AttributeError:
-                    pass
-                else:
-                    ssl._create_default_https_context = _create_unverified_https_context
-                
-                # Download the data
-                nltk.download(data, download_dir=nltk_data_dir, quiet=True)
+                print(f"Downloading NLTK data: {data_name}")
+                nltk.download(
+                    data_name,
+                    download_dir=nltk_data_dir,
+                    quiet=True,
+                    raise_on_error=True
+                )
+                # Verify the download
+                nltk.data.find(data_path)
+                print(f"Successfully downloaded {data_name}")
                 
     except Exception as e:
-        print(f"NLTK setup warning: {str(e)}")
-        # Try to continue even if NLTK setup fails
-        pass
+        print(f"NLTK setup error: {str(e)}")
+        # Try to continue with limited functionality
+        try:
+            # Fallback to default NLTK data path as last resort
+            nltk.download('punkt', quiet=True)
+            nltk.download('stopwords', quiet=True)
+        except:
+            print("Failed to download NLTK data in fallback mode")
 
 # Initialize NLTK when the module loads
 setup_nltk()

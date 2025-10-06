@@ -9,32 +9,56 @@ def setup_nltk():
         nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
         os.makedirs(nltk_data_dir, exist_ok=True)
         
-        # Set NLTK to use our custom directory
-        nltk.data.path.append(nltk_data_dir)
+        # Set NLTK to use our custom directory (insert at beginning to prioritize)
+        if nltk_data_dir not in nltk.data.path:
+            nltk.data.path.insert(0, nltk_data_dir)
         
-        # Download required NLTK data
-        required_data = ['punkt', 'stopwords']
+        # Set NLTK_DATA environment variable
+        os.environ['NLTK_DATA'] = nltk_data_dir
         
-        for data in required_data:
+        # Handle SSL certificate issues
+        import ssl
+        try:
+            _create_unverified_https_context = ssl._create_unverified_context
+        except AttributeError:
+            pass
+        else:
+            ssl._create_default_https_context = _create_unverified_https_context
+        
+        # Download required NLTK data with explicit paths
+        required_data = [
+            ('tokenizers/punkt', 'punkt'),
+            ('corpora/stopwords', 'stopwords')
+        ]
+        
+        for data_path, data_name in required_data:
             try:
-                nltk.data.find(f'tokenizers/{data}' if data == 'punkt' else f'corpora/{data}')
+                nltk.data.find(data_path)
+                st.session_state[f'nltk_{data_name}'] = True
             except LookupError:
-                # Handle SSL certificate issues
-                import ssl
                 try:
-                    _create_unverified_https_context = ssl._create_unverified_context
-                except AttributeError:
-                    pass
-                else:
-                    ssl._create_default_https_context = _create_unverified_https_context
-                
-                # Download the data
-                nltk.download(data, download_dir=nltk_data_dir, quiet=True)
-                
+                    st.write(f"Downloading NLTK data: {data_name}...")
+                    nltk.download(
+                        data_name,
+                        download_dir=nltk_data_dir,
+                        quiet=False,
+                        raise_on_error=True
+                    )
+                    # Verify the download
+                    nltk.data.find(data_path)
+                    st.session_state[f'nltk_{data_name}'] = True
+                    st.experimental_rerun()  # Rerun to ensure NLTK data is found
+                except Exception as e:
+                    st.error(f"Failed to download {data_name}: {str(e)}")
+                    st.session_state[f'nltk_{data_name}'] = False
+                    
     except Exception as e:
-        st.warning(f"NLTK setup warning: {str(e)}")
-        # Try to continue even if NLTK setup fails
-        pass
+        st.error(f"NLTK setup error: {str(e)}")
+        # Try to continue with limited functionality
+        if 'nltk_punkt' not in st.session_state:
+            st.session_state.nltk_punkt = False
+        if 'nltk_stopwords' not in st.session_state:
+            st.session_state.nltk_stopwords = False
 
 # Initialize NLTK when the app starts
 setup_nltk()
