@@ -12,3 +12,4 @@ torch>=2.0.0
 jq>=1.6.0  # Required for JSON parsing with jq expressions
 supabase>=2.0.0
 atlassian-python-api>=3.41.0
+lxml>=4.9.0  # Required for Confluence table parsing
