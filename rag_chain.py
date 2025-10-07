@@ -37,29 +37,18 @@ def create_rag_chain(retriever, mistral_api_key: str):
     GREETING HANDLING:
     - If the user greets you (e.g., "hi", "hello", "good morning"), respond with a friendly greeting and offer assistance with incident-related queries.
     - For general conversation that's not related to incidents, respond politely but guide the conversation back to incident management.
-    - DO NOT share any incident details in response to a greeting.
     
-    SEARCH MODES:
-    - If the search mode is 'quick_guide' (Looking for quick guide to resolve from past incident history):
-      * Only provide general guidance and best practices
-      * Do not share specific incident details unless explicitly asked for
-      * If no specific incident is mentioned, provide general help
-    
-    - If the search mode is 'incident_number' (Query with Incident Numbers):
-      * Only provide information if a valid incident number is provided
-      * If no incident number is provided, ask for one
-      * Only share details from the context for the specified incident
-    
-    - If the search mode is 'general' (For other query):
-      * Provide general information about incident management
-      * Do not share specific incident details unless explicitly asked
-    
-    GENERAL RULES:
+    INCIDENT QUERIES:
     - Your responses about incidents MUST be based ONLY on the provided context.
     - If the answer is not explicitly in the context, say "I don't have enough information to answer that question."
     - Never make up or guess information that's not in the context.
     - If asked about specific incidents, only provide details that are in the context.
-    - Always be cautious about sharing sensitive information.
+
+    When responding about incidents:
+    - Always include the incident number if available
+    - Only state facts that are present in the context
+    - If the context doesn't contain enough information, say so
+    - Never invent incident details, resolutions, or statuses
 
     Context:
     {context}
@@ -67,33 +56,22 @@ def create_rag_chain(retriever, mistral_api_key: str):
     Question: {input}
     """
     
-    # Add few-shot examples with greeting handling and search mode awareness
+    # Add few-shot examples with greeting handling and generic placeholders
     few_shot_examples = [
         # Greeting examples
         ("human", "Hi there!"),
         ("ai", "Hello! I'm your ServiceNow incident assistant. How can I help you with incident management today?"),
-        
-        # Quick Guide search mode examples
-        ("human", "Looking for quick guide to resolve from past incident history"),
-        ("ai", "I can help you find information about past incidents. Could you please provide more details about what you're looking for? For example, you could ask about specific types of issues or request general best practices."),
-        
-        # Incident number search mode examples
-        ("human", "Query with Incident Numbers if you have them handy"),
-        ("ai", "Please provide an incident number, and I'll look up the details for you."),
-        ("human", "What's the status of INC12345?"),
-        ("ai", "Let me look up the details for incident INC12345."),
-        
-        # General query examples
-        ("human", "For other query"),
-        ("ai", "I'm here to help with incident management. What would you like to know?"),
-        ("human", "How do I create a new incident?"),
-        ("ai", "To create a new incident, you can use the ServiceNow interface or the API. Would you like me to guide you through the process?"),
-        
+        ("human", "Good morning"),
+        ("ai", "Good morning! I'm here to help with any ServiceNow incident queries you have. What can I assist you with today?"),
+        # Incident query examples
+        ("human", "What is this incident about?"),
+        ("ai", "Let me look up the details for this incident."),
+        ("human", "How was this incident resolved?"),
+        ("ai", "I'll check the resolution details for this incident."),
         # Non-incident query handling
         ("human", "How's the weather?"),
         ("ai", "I'm focused on helping with ServiceNow incidents. Would you like to ask about a specific incident or need help with incident management?")
     ]
-    
     
     # Create a custom document prompt
     from langchain_core.prompts import PromptTemplate
@@ -419,65 +397,8 @@ def create_rag_chain(retriever, mistral_api_key: str):
 
 
 
-from typing import Union, Awaitable, Callable, Dict, Any, List, Set
+from typing import Union, Awaitable, Callable, Dict, Any
 import asyncio
-import nltk
-import os
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-
-def setup_nltk():
-    """Setup NLTK data directory and download required packages."""
-    try:
-        # Create a directory for NLTK data in the app's working directory
-        nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
-        os.makedirs(nltk_data_dir, exist_ok=True)
-        
-        # Set NLTK to use our custom directory
-        nltk.data.path.insert(0, nltk_data_dir)  # Insert at beginning to prioritize
-        
-        # Handle SSL certificate issues
-        import ssl
-        try:
-            _create_unverified_https_context = ssl._create_unverified_context
-        except AttributeError:
-            pass
-        else:
-            ssl._create_default_https_context = _create_unverified_https_context
-        
-        # Download required NLTK data with explicit paths
-        required_data = [
-            ('tokenizers/punkt', 'punkt'),
-            ('corpora/stopwords', 'stopwords')
-        ]
-        
-        for data_path, data_name in required_data:
-            try:
-                nltk.data.find(data_path)
-            except LookupError:
-                print(f"Downloading NLTK data: {data_name}")
-                nltk.download(
-                    data_name,
-                    download_dir=nltk_data_dir,
-                    quiet=True,
-                    raise_on_error=True
-                )
-                # Verify the download
-                nltk.data.find(data_path)
-                print(f"Successfully downloaded {data_name}")
-                
-    except Exception as e:
-        print(f"NLTK setup error: {str(e)}")
-        # Try to continue with limited functionality
-        try:
-            # Fallback to default NLTK data path as last resort
-            nltk.download('punkt', quiet=True)
-            nltk.download('stopwords', quiet=True)
-        except:
-            print("Failed to download NLTK data in fallback mode")
-
-# Initialize NLTK when the module loads
-setup_nltk()
 import inspect
 
 def ensure_document(doc):
@@ -493,54 +414,6 @@ def ensure_document(doc):
         )
     return Document(page_content=str(doc))
 
-def is_greeting(text: str) -> bool:
-    """
-    Check if the input text is a greeting using NLTK for more accurate detection.
-    
-    Args:
-        text: Input text to check
-        
-    Returns:
-        bool: True if the text is a greeting, False otherwise
-    """
-    if not text or not isinstance(text, str):
-        return False
-        
-    # Common greeting words and phrases
-    greeting_words = {
-        'hi', 'hello', 'hey', 'greetings', 'salutations', 'howdy', 'yo',
-        'good morning', 'good afternoon', 'good evening', 'good day'
-    }
-    
-    # Remove punctuation and convert to lowercase
-    text = text.lower().strip()
-    
-    # Tokenize the text
-    tokens = word_tokenize(text)
-    
-    # Remove stopwords
-    stop_words = set(stopwords.words('english'))
-    filtered_tokens = [word for word in tokens if word.lower() not in stop_words]
-    
-    # Check if any greeting words are in the text
-    if any(greeting in text for greeting in greeting_words):
-        return True
-        
-    # Check if the text starts with a greeting
-    first_word = filtered_tokens[0].lower() if filtered_tokens else ''
-    if first_word in greeting_words:
-        return True
-        
-    # Check common greeting patterns
-    greeting_patterns = [
-        r'^hi\b', r'^hello\b', r'^hey\b', r'^greetings?\b',
-        r'good\s+(morning|afternoon|evening|day)',
-        r'^yo\b', r'^howdy\b', r'^well hello\b'
-    ]
-    
-    import re
-    return any(re.search(pattern, text, re.IGNORECASE) for pattern in greeting_patterns)
-
 def query_rag_chain(rag_chain: Union[Callable, Awaitable], query: str, search_mode: str = 'general') -> Dict[str, Any]:
     """
     Query the RAG chain with proper error handling and document validation.
@@ -548,43 +421,17 @@ def query_rag_chain(rag_chain: Union[Callable, Awaitable], query: str, search_mo
     Args:
         rag_chain: The RAG chain to query (can be sync or async)
         query: The user's query string
-        search_mode: The search mode to use ('incident_number', 'general', or 'quick_guide')
+        search_mode: The search mode to use ('incident_number', 'general', or 'mmr_only')
         
     Returns:
         A dictionary containing the response, context, and any errors
     """
-    # Handle empty or invalid queries
     if not query or not isinstance(query, str) or not query.strip():
         return {
             "input": "",
             "context": [],
             "result": "Please provide a valid query.",
             "answer": "Please provide a valid query.",
-            "source_documents": []
-        }
-        
-    # Handle greetings without searching the vector DB
-    if is_greeting(query):
-        # Generate a more natural response based on the time of day
-        from datetime import datetime
-        hour = datetime.now().hour
-        
-        if 5 <= hour < 12:
-            greeting = "Good morning!"
-        elif 12 <= hour < 17:
-            greeting = "Good afternoon!"
-        elif 17 <= hour < 21:
-            greeting = "Good evening!"
-        else:
-            greeting = "Hello!"
-            
-        response = f"{greeting} I'm your ServiceNow incident assistant. How can I help you with incident management today?"
-        
-        return {
-            "input": query,
-            "context": [],
-            "result": response,
-            "answer": response,
             "source_documents": []
         }
         
