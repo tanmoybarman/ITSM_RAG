@@ -4,6 +4,7 @@ import re
 import time
 import json
 import pandas as pd
+import hashlib
 from datetime import datetime
 from dotenv import load_dotenv
 from pprint import pprint
@@ -284,8 +285,39 @@ def render_ods_icad():
         else:
             st.info("No ICAD incidents found.")
 
+def check_admin_auth():
+    """Check if admin is authenticated"""
+    if 'admin_authenticated' not in st.session_state:
+        st.session_state.admin_authenticated = False
+    return st.session_state.admin_authenticated
+
+def authenticate_admin():
+    """Handle admin authentication"""
+    if 'admin_authenticated' not in st.session_state:
+        st.session_state.admin_authenticated = False
+    
+    if not st.session_state.admin_authenticated:
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("### 🔒 Admin Access")
+        password = st.sidebar.text_input("Admin Password:", type="password", key="admin_pass")
+        if st.sidebar.button("Authenticate"):
+            # In production, use a proper password hashing mechanism
+            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+            # Get password from environment variable or use a default for demonstration
+            admin_password_hash = os.getenv("ADMIN_PASSWORD_HASH", "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8")  # default: 'password'
+            if hashed_password == admin_password_hash:
+                st.session_state.admin_authenticated = True
+                st.rerun()
+            else:
+                st.sidebar.error("Incorrect password")
+        return False
+    return True
+
 def render_sidebar():
     """Render the sidebar with controls"""
+    # Initialize reload_data with default value
+    reload_data = False
+    
     with st.sidebar:
         st.title("⚙️ Settings")
         
@@ -330,39 +362,52 @@ def render_sidebar():
         st.markdown("### ℹ️ About")
         st.markdown("This is an AI assistant for querying incident data.")
         
-        # Add reload data option
-        reload_data = st.checkbox("Reload data from source", value=False,
-                               help="Check this to force reload data from the source files")
-        
-        # Show initialization button if not already initializing
-        if not st.session_state.rag_initialized and not st.session_state.rag_chain_initializing:
-            if st.button("🚀 Initialize AI System", use_container_width=True, key="init_ai_system_btn"):
-                st.session_state.rag_chain_initializing = True
-                st.rerun()
-        
-        # Handle initialization in a separate block to show spinner
-        if st.session_state.rag_chain_initializing and not st.session_state.rag_initialized:
-            with st.spinner("Initializing AI system (this may take a minute)..."):
-                try:
-                    rag_chain = initialize_system(reload_data=reload_data)
-                    if rag_chain:
-                        st.session_state.rag_initialized = True
+        # Show admin controls section if authenticated
+        if check_admin_auth() or authenticate_admin():
+            st.markdown("### 🔧 Admin Controls")
+            
+            # Add reload data option (only visible to authenticated admins)
+            reload_data = st.checkbox("Reload data from source", value=False,
+                                   help="Check this to force reload data from the source files")
+            
+            # Show initialization button if not already initializing
+            if not st.session_state.rag_initialized and not st.session_state.rag_chain_initializing:
+                if st.button("🚀 Initialize AI System", use_container_width=True, key="init_ai_system_btn"):
+                    st.session_state.rag_chain_initializing = True
+                    st.rerun()
+            
+            # Handle initialization in a separate block to show spinner
+            if st.session_state.rag_chain_initializing and not st.session_state.rag_initialized:
+                with st.spinner("Initializing AI system (this may take a minute)..."):
+                    try:
+                        rag_chain = initialize_system(reload_data=reload_data)
+                        if rag_chain:
+                            st.session_state.rag_initialized = True
+                            st.session_state.rag_chain_initializing = False
+                            st.rerun()
+                        else:
+                            st.error("Failed to initialize the AI chain. Please check the logs.")
+                            st.session_state.rag_chain_initializing = False
+                    except Exception as e:
+                        st.error(f"Error during initialization: {str(e)}")
+                        st.error("Please check your API keys and try again.")
                         st.session_state.rag_chain_initializing = False
-                        st.rerun()
-                    else:
-                        st.error("Failed to initialize the AI chain. Please check the logs.")
-                        st.session_state.rag_chain_initializing = False
-                except Exception as e:
-                    st.error(f"Error during initialization: {str(e)}")
-                    st.error("Please check your API keys and try again.")
-                    st.session_state.rag_chain_initializing = False
-        
-        # Show success message if initialized
-        if st.session_state.rag_initialized:
-            st.success("✅ AI System Initialized")
-            if st.button("🔄 Reinitialize AI System", key="reinit_ai_system_btn"):
-                st.session_state.rag_initialized = False
-                st.rerun()
+            
+            # Show success message if initialized
+            if st.session_state.rag_initialized:
+                st.success("✅ AI System Initialized")
+                if st.button("🔄 Reinitialize AI System", key="reinit_ai_system_btn"):
+                    st.session_state.rag_initialized = False
+                    st.rerun()
+                    
+                # Add logout button for admin
+                if st.button("🔒 Logout Admin", key="admin_logout_btn"):
+                    st.session_state.admin_authenticated = False
+                    st.rerun()
+        else:
+            # Show a message that admin authentication is required
+            st.info("🔒 Admin authentication required for system controls.")
+            reload_data = False  # Ensure reload_data is defined in this branch
         return reload_data
 
 def render_chat():

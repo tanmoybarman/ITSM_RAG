@@ -36,6 +36,7 @@ def create_rag_chain(retriever, mistral_api_key: str):
     
     GREETING HANDLING:
     - If the user greets you (e.g., "hi", "hello", "good morning"), respond with a friendly greeting and offer assistance with incident-related queries.
+    - DO NOT mention any incident numbers or details in the greeting response.
     - For general conversation that's not related to incidents, respond politely but guide the conversation back to incident management.
     
     INCIDENT QUERIES:
@@ -45,7 +46,7 @@ def create_rag_chain(retriever, mistral_api_key: str):
     - If asked about specific incidents, only provide details that are in the context.
 
     When responding about incidents:
-    - Always include the incident number if available
+    - Only mention incident details if explicitly asked about them
     - Only state facts that are present in the context
     - If the context doesn't contain enough information, say so
     - Never invent incident details, resolutions, or statuses
@@ -58,11 +59,17 @@ def create_rag_chain(retriever, mistral_api_key: str):
     
     # Add few-shot examples with greeting handling and generic placeholders
     few_shot_examples = [
-        # Greeting examples
-        ("human", "Hi there!"),
-        ("ai", "Hello! I'm your ServiceNow incident assistant. How can I help you with incident management today?"),
+        # Greeting examples - simple and clean responses
+        ("human", "Hi there"),
+        ("ai", "Hello! I'm your ServiceNow incident assistant. How can I help you today?"),
+        ("human", "Hello"),
+        ("ai", "Hi there! How can I assist you with incident management today?"),
         ("human", "Good morning"),
-        ("ai", "Good morning! I'm here to help with any ServiceNow incident queries you have. What can I assist you with today?"),
+        ("ai", "Good morning! I'm here to help with any ServiceNow incident queries."),
+        ("human", "Hey"),
+        ("ai", "Hi! I'm your incident management assistant. What can I help you with?"),
+        ("human", "Good afternoon"),
+        ("ai", "Good afternoon! How can I assist you with ServiceNow incidents today?"),
         # Incident query examples
         ("human", "What is this incident about?"),
         ("ai", "Let me look up the details for this incident."),
@@ -174,6 +181,7 @@ def create_rag_chain(retriever, mistral_api_key: str):
     
     async def process_retrieved_docs(inputs):
         from langchain_core.documents import Document
+        import re
         
         query = inputs.get("input", "").strip()
         search_mode = inputs.get("search_mode", "general")
@@ -182,7 +190,32 @@ def create_rag_chain(retriever, mistral_api_key: str):
             return {
                 "input": "",
                 "context": [],
-                "answer": "Please provide a valid query."
+                "answer": "Please provide a valid query.",
+                "source_documents": []
+            }
+            
+        # Common greeting patterns
+        greeting_patterns = [
+            r'^(hi|hello|hey|greetings|good\s(morning|afternoon|evening|day))\b',
+            r'^how\s(are\s(you|things)|is\sit\sgoing)\??$',
+            r'^what\'?s?\s+up\??$',
+            r'^yo\b',
+            r'^hiya\b',
+            r'^howdy\b',
+            r'^hola\b',
+            r'^g\'?day\b',
+            r'^sup\??$'
+        ]
+        
+        # Check if the query is just a greeting
+        is_greeting = any(re.match(pattern, query, re.IGNORECASE) for pattern in greeting_patterns)
+        
+        if is_greeting:
+            return {
+                "input": query,
+                "context": [],
+                "answer": "Hello! I'm your ServiceNow incident assistant. How can I help you today?",
+                "source_documents": []
             }
         
         # Handle both sync and async retrievers
