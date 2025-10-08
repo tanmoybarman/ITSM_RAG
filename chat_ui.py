@@ -1561,10 +1561,12 @@ def main():
     # Track active tab and render content
     with tab1:
         st.session_state.active_tab = "Incidents"
+        st.caption("View and manage all reported incidents and their statuses")
         render_incident_management()
         
     with tab2:
         st.session_state.active_tab = "New Ticket"
+        st.caption("Create a new support ticket for any issues or requests")
         # Clear form data when switching to the ticket creation tab
         if 'form_short_description' not in st.session_state:
             st.session_state.form_short_description = ""
@@ -1573,6 +1575,7 @@ def main():
         
     with tab3:
         st.session_state.active_tab = "Chat"
+        st.caption("Chat with the AI assistant for quick help and information")
         
         # The RAG system is now initialized when the app starts via the cached function
         # Just render the chat interface directly
@@ -1580,10 +1583,12 @@ def main():
             
     with tab4:
         st.session_state.active_tab = "ODS & ICAD"
+        st.caption("Access ODS and ICAD data and related incident information")
         render_ods_icad()
         
     with tab5:
         st.session_state.active_tab = "Confluence"
+        st.caption("This page is linked to confluence page and allows you to view the recurring Incidents related to InfoAPI backend services on a real-time basis. You can also validate the Incidents using the Validate button provided at the bottom of the table. This will update the status of the Incidents in Confluence table.")
         render_confluence_table()
 
 if __name__ == "__main__":
